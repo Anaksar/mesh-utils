@@ -15,7 +15,7 @@ bl_info = {
     "name" : "Mesh Utils",
     "author" : "Radu Popovici",
     "description" : "",
-    "blender" : (2, 80, 0),
+    "blender" : (5, 1, 0),
     "version" : (0, 10),
     "location" : "(Edit Mode) Select > Select All by Trait",
     "warning" : "",
