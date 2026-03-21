@@ -110,7 +110,7 @@ def select_duplicate_vertices(context, distance):
 
     # Show the updates in the viewport
     bm.select_flush_mode()
-    bmesh.update_edit_mesh(mesh, False)
+    bmesh.update_edit_mesh(mesh, loop_triangles = False)
 
 
 def select_duplicate_edges(context, distance):
@@ -149,7 +149,7 @@ def select_duplicate_edges(context, distance):
                 bm.edges[edge_index].select_set(True)
 
     bm.select_flush_mode()
-    bmesh.update_edit_mesh(mesh, False, False)
+    bmesh.update_edit_mesh(mesh, loop_triangles = False, destructive = False)
 
 def select_intersect_faces(context, intersections, coplanar, inset, tolerance, angle):
     obj = context.active_object
@@ -230,7 +230,7 @@ def select_intersect_faces(context, intersections, coplanar, inset, tolerance, a
                             co_face.select_set(True)
 
     bm.select_flush_mode()
-    bmesh.update_edit_mesh(mesh, False, False)
+    bmesh.update_edit_mesh(mesh, loop_triangles = False, destructive = False)
 
     #bpy.ops.object.mode_set(mode='OBJECT')
     #bm_clone_resampled.to_mesh(mesh)
@@ -269,7 +269,7 @@ def select_duplicate_faces(context, distance):
                 bm.faces[face_index].select_set(True)
 
     bm.select_flush_mode()
-    bmesh.update_edit_mesh(mesh, False, False)
+    bmesh.update_edit_mesh(mesh, loop_triangles = False, destructive = False)
     return
 
 def get_mesh_select_mode():
