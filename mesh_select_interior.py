@@ -56,23 +56,23 @@ def hit_test_area(pixels, resolution, xpos_min, ypos_min, xpos_max, ypos_max):
 
 
 def select_interior_faces(context, obj, bake_type, resolution, samples, bounces):
+    bpy.ops.object.mode_set(mode = 'OBJECT')
+
     ao_map_size = resolution
     selected_objects = bpy.context.selected_objects
     context.scene.render.engine = 'CYCLES'
     context.scene.cycles.samples = samples
     #bpy.context.scene.render.layers["RenderLayer"].cycles.use_denoising = True
 
-    ##sampling;=path tracing 
-    bpy.context.scene.cycles.progressive = 'PATH'
     #bpy.context.scene.cycles.samples = 50
     bpy.context.scene.cycles.max_bounces = bounces
-    bpy.context.scene.cycles.min_bounces = bounces
+    bpy.context.scene.cycles.min_light_bounces = bounces
     bpy.context.scene.cycles.diffuse_bounces = bounces
     bpy.context.scene.cycles.glossy_bounces = 0
     bpy.context.scene.cycles.transmission_bounces = 0
     bpy.context.scene.cycles.volume_bounces = 0
     bpy.context.scene.cycles.transparent_max_bounces = 0
-    bpy.context.scene.cycles.transparent_min_bounces = 0
+    bpy.context.scene.cycles.min_transparent_bounces = 0
     #bpy.context.scene.cycles.use_progressive_refine = True
 
     context.scene.cycles.sample_clamp_indirect = 0.0
@@ -108,14 +108,16 @@ def select_interior_faces(context, obj, bake_type, resolution, samples, bounces)
 
     # add new UV layer
     uv_layer =  obj.data.uv_layers.get("__AO_UV_LAYER__")
-    if not uv_layer:
+    if not uv_layer:    
         uv_layer = obj.data.uv_layers.new(name="__AO_UV_LAYER__")
     uv_layer.active = True
+
+    bpy.ops.object.mode_set(mode = 'EDIT')
 
     # quick face unwrap
     #bpy.ops.mesh.select_all(action='SELECT')
     #bpy.ops.uv.smart_project(angle_limit=1.0, island_margin=0.01, user_area_weight=0.0, use_aspect=True, stretch_to_bounds=True)
-    bpy.ops.uv.lightmap_pack(PREF_CONTEXT='ALL_FACES', PREF_PACK_IN_ONE=True, PREF_NEW_UVLAYER=False, PREF_APPLY_IMAGE=False, PREF_IMG_PX_SIZE=ao_map_size, PREF_BOX_DIV=12, PREF_MARGIN_DIV=0.2)
+    bpy.ops.uv.lightmap_pack(PREF_CONTEXT='ALL_FACES', PREF_PACK_IN_ONE=True, PREF_NEW_UVLAYER=False, PREF_BOX_DIV=12, PREF_MARGIN_DIV=0.2)
     bpy.ops.mesh.select_all(action='DESELECT')
 
     # creating a new material and add a new image texture node to it
@@ -127,10 +129,9 @@ def select_interior_faces(context, obj, bake_type, resolution, samples, bounces)
     #bake_material.metallic = 1
 
     #bpy.data.node_groups["Shader NodeTree"].nodes["Principled BSDF"].inputs[0].default_value = (0, 1, 0, 1)
-    bake_material.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (1, 1, 1, 1)
-    bake_material.node_tree.nodes["Principled BSDF"].inputs[4].default_value = 0
-    bake_material.node_tree.nodes["Principled BSDF"].inputs[5].default_value = 1
-    bake_material.node_tree.nodes["Principled BSDF"].inputs[7].default_value = 0
+    bake_material.node_tree.nodes["Principled BSDF"].inputs['Base Color'].default_value = (1, 1, 1, 1)
+    bake_material.node_tree.nodes["Principled BSDF"].inputs['Metallic'].default_value = 0
+    bake_material.node_tree.nodes["Principled BSDF"].inputs['Roughness'].default_value = 0
 
     image_texture_node = bake_material.node_tree.nodes.new('ShaderNodeTexImage')
     image_texture_node.select = True
