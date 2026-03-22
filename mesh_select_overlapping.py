@@ -27,13 +27,11 @@ def measure (first, second):
 	distance = sqrt((locx)**2 + (locy)**2 + (locz)**2) 
 	return distance
 
-def collinear(vec1, vec2, epsilon):
-    if (vec1.length == 0.0) or (vec2.length == 0.0):
-        return False
-    return ((vec1.angle(vec2) < epsilon) or (abs(radians(180) - vec1.angle(vec2)) < epsilon))
+def collinear(vec1: Vector, vec2: Vector, epsilon: float):
+    return vec1.dot(vec2) > epsilon
 
 def is_contrary(vec1: Vector, vec2: Vector, epsilon: float):
-    return vec1.dot(vec2) < epsilon
+    return vec1.dot(vec2) < -epsilon
 
 def adjacent(face, another_face):
     adjacent_faces = []
@@ -229,10 +227,15 @@ def select_intersect_faces(context, intersections, coplanar, contrary, inset, to
                         continue
                     if index is None or index == face.index:
                         continue
-                    if coplanar and not collinear(org_face.normal, co_face.normal, angle):
-                        continue
-                    if contrary and not is_contrary(org_face.normal, co_face.normal, -math.cos(angle)):
-                        continue
+                    if coplanar and contrary:
+                        if not collinear(org_face.normal, co_face.normal, math.cos(angle)) and not is_contrary(org_face.normal, co_face.normal, math.cos(angle)):
+                            continue
+                    elif coplanar:
+                        if not collinear(org_face.normal, co_face.normal, math.cos(angle)):
+                            continue
+                    elif contrary:
+                        if not is_contrary(org_face.normal, co_face.normal, math.cos(angle)):
+                            continue
                     if bmesh.geometry.intersect_face_point(bm.faces[index], vert.co) and (not adjacent(org_face, co_face)):
                         org_face.select_set(True)
                         co_face.select_set(True)
@@ -344,6 +347,7 @@ class SelectOverlapping(bpy.types.Operator):
                 ('COPLANAR', "Coplanar", "Select coplanar faces"),
                 ('CONTRARY', "Contrary", "Select contrary faces"),
                 ('ALL', "All", "Select all intersection faces"),
+                ('NONE', "None", "")
                 ],
         name="Direction Mode",
         description="",
@@ -437,7 +441,7 @@ class SelectOverlapping(bpy.types.Operator):
         row.label(text="Face Direction")
         row.prop(self, "direction_type", text="")
         
-        enable = self.direction_type != 'ALL'
+        enable = self.direction_type != 'NONE'
         distance_row = box.row()
         distance_row.enabled = enable
         distance_row.label(text="Tolerance")
