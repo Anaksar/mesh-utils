@@ -13,13 +13,13 @@
 
 bl_info = {
     "name" : "Mesh Utils",
-    "author" : "Radu Popovici",
+    "author" : "Radu Popovici, Nikita Poleshchuk, Sergei Sergeev aka Teslotik",
     "description" : "",
     "blender" : (5, 1, 0),
-    "version" : (0, 10),
-    "location" : "(Edit Mode) Select > Select All by Trait",
+    "version" : (1, 0),
+    "location" : "3D View > Mesh-Utils",
     "warning" : "",
-    "wiki_url": "https://github.com/rpopovici/mesh-utils",
+    "wiki_url": "https://github.com/Anaksar/mesh-utils",
     "category" : "Mesh"
 }
 

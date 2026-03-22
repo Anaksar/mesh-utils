@@ -1,15 +1,3 @@
-bl_info = {
-    "name": "Mesh from UVs",
-    "author": "rpopovici",
-    "version": (0, 1),
-    "blender": (2, 80, 0),
-    "location": "(Object Mode) Add > Mesh > Mesh from UVs",
-    "description": "Create mesh from UVs",
-    "warning": "",
-    "wiki_url": "https://github.com/rpopovici/mesh-utils",
-    "category": "Mesh",
-    }
-
 import bpy
 from mathutils import Vector
 

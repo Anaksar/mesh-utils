@@ -1,5 +1,10 @@
-# mesh-utils 
+# mesh-utils
+
 [Follow @radu_popovic](https://twitter.com/radu_popovic?ref_src=twsrc%5Etfw)
+
+[Follow Anaksar](https://github.com/Anaksar/mesh-utils)
+
+[Follow Teslotik](https://discord.gg/duDwM6PjGk)
 
 ## Up to date list of tools:
 - select overlapping based on KDTree/BVHTree
@@ -34,6 +39,8 @@ These two implementations KDTree/BVHTree can be used together or separately in f
 
 ![Screenshot](overlapping.jpeg)
 
+![Screenshot](overlapping.gif)
+
 ### Select interior faces (AO bake)
 
 This solution is based on AO map baking. Normaly you would want to do a “bake to vertex” but this is not possible right now in b2.8. So, I am baking to image and then I am interpolating face/vertex position inside the UV map. Everything completely black in the AO map is hidden behind some geometry.
@@ -66,5 +73,5 @@ Select interior faces could be implemented using the following techniques:
 - AO bake. baking has some advantages over the other solutions listed here. One of them is the fact that is not modifing the original mesh and it's able to identify "invisible" geometry
 
 #### Where do I get it from?
-https://github.com/rpopovici/blender-addons
+https://github.com/Anaksar/mesh-utils
 

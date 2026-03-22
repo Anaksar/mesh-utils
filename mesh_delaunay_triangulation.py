@@ -1,15 +1,3 @@
-bl_info = {
-    "name": "Delaunay triangulation",
-    "author": "rpopovici",
-    "version": (0, 1),
-    "blender": (2, 80, 0),
-    "location": "(Object Mode) Add > Mesh > Delaunay triangulation",
-    "description": "Delaunay triangulation",
-    "warning": "",
-    "wiki_url": "https://github.com/rpopovici/mesh-utils",
-    "category": "Mesh",
-    }
-
 import bpy
 from mathutils import Vector
 from mathutils.geometry import delaunay_2d_cdt

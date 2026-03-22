@@ -1,15 +1,3 @@
-bl_info = {
-    "name": "Select Overlapping Mesh",
-    "author": "rpopovici",
-    "version": (0, 4),
-    "blender": (2, 80, 0),
-    "location": "(Edit Mode) Select > Select All by Trait",
-    "description": "Select overlapping vertices/edges/faces",
-    "warning": "",
-    "wiki_url": "https://github.com/rpopovici/mesh-utils",
-    "category": "Mesh",
-    }
-
 import bpy
 import bmesh
 from mathutils.bvhtree import BVHTree

@@ -1,15 +1,3 @@
-bl_info = {
-    "name": "Select Interior Faces",
-    "author": "rpopovici",
-    "version": (0, 5),
-    "blender": (2, 80, 0),
-    "location": "(Edit Mode) Select > Select All by Trait",
-    "description": "Select interior faces. This solution is based on AO map baking",
-    "warning": "",
-    "wiki_url": "https://github.com/rpopovici/mesh-utils",
-    "category": "Mesh",
-    }
-
 import bpy
 import bmesh
 from mathutils import Vector

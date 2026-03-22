@@ -1,15 +1,3 @@
-bl_info = {
-    "name": "Select All by Trait",
-    "author": "rpopovici",
-    "version": (0, 1),
-    "blender": (2, 80, 0),
-    "location": "(Edit Mode) Select > Select All by Trait",
-    "description": "Select Bevel/Crease/Seam/Sharp/Freestyle by Trait",
-    "warning": "",
-    "wiki_url": "https://github.com/rpopovici/mesh-utils",
-    "category": "Mesh",
-    }
-
 import bpy
 import bmesh
 
