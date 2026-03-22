@@ -17,6 +17,7 @@ from mathutils.kdtree import KDTree
 from mathutils import Matrix
 from mathutils import Vector
 from math import radians, sqrt
+import math
 
 def measure (first, second):
 	locx = second[0] - first[0]
@@ -30,6 +31,9 @@ def collinear(vec1, vec2, epsilon):
     if (vec1.length == 0.0) or (vec2.length == 0.0):
         return False
     return ((vec1.angle(vec2) < epsilon) or (abs(radians(180) - vec1.angle(vec2)) < epsilon))
+
+def is_contrary(vec1: Vector, vec2: Vector, epsilon: float):
+    return vec1.dot(vec2) < epsilon
 
 def adjacent(face, another_face):
     adjacent_faces = []
@@ -151,7 +155,7 @@ def select_duplicate_edges(context, distance):
     bm.select_flush_mode()
     bmesh.update_edit_mesh(mesh, loop_triangles = False, destructive = False)
 
-def select_intersect_faces(context, intersections, coplanar, inset, tolerance, angle):
+def select_intersect_faces(context, intersections, coplanar, contrary, inset, tolerance, angle):
     obj = context.active_object
     mesh = obj.data
     bm = bmesh.from_edit_mesh(mesh)
@@ -208,8 +212,8 @@ def select_intersect_faces(context, intersections, coplanar, inset, tolerance, a
                     bm.faces[first_index].select_set(True)
                     bm.faces[second_index].select_set(True)
 
-    # coplanar intersections
-    if (coplanar):
+    # direction intersections
+    if (coplanar or contrary):
         bvh_tree = BVHTree.FromBMesh(bm, epsilon = 0.0)
         for face in bm_clone.faces:
             for vert in face.verts:
@@ -223,11 +227,15 @@ def select_intersect_faces(context, intersections, coplanar, inset, tolerance, a
                     # skip if already selected or hidden
                     if (org_face.select and co_face.select) or org_face.hide or co_face.hide:
                         continue
-                    if (index is not None) and (index != face.index) and collinear(org_face.normal, co_face.normal, angle): #(measure(vert.co, location) < 0.0001):
-                        #print(co_face.index, location, index, dist)
-                        if bmesh.geometry.intersect_face_point(bm.faces[index], vert.co) and (not adjacent(org_face, co_face)):
-                            org_face.select_set(True)
-                            co_face.select_set(True)
+                    if index is None or index == face.index:
+                        continue
+                    if coplanar and not collinear(org_face.normal, co_face.normal, angle):
+                        continue
+                    if contrary and not is_contrary(org_face.normal, co_face.normal, -math.cos(angle)):
+                        continue
+                    if bmesh.geometry.intersect_face_point(bm.faces[index], vert.co) and (not adjacent(org_face, co_face)):
+                        org_face.select_set(True)
+                        co_face.select_set(True)
 
     bm.select_flush_mode()
     bmesh.update_edit_mesh(mesh, loop_triangles = False, destructive = False)
@@ -330,11 +338,15 @@ class SelectOverlapping(bpy.types.Operator):
         description = "Inset factor between adjacent faces",
         unit='LENGTH'
         )
-
-    coplanar: bpy.props.BoolProperty(
-        name="Coplanar",
-        description="Select coplanar faces",
-        default = False
+    
+    direction_type: bpy.props.EnumProperty(
+        items=[
+                ('COPLANAR', "Coplanar", "Select coplanar faces"),
+                ('CONTRARY', "Contrary", "Select contrary faces"),
+                ('ALL', "All", "Select all intersection faces"),
+                ],
+        name="Direction Mode",
+        description="",
         )
 
     tolerance: bpy.props.FloatProperty(
@@ -361,7 +373,17 @@ class SelectOverlapping(bpy.types.Operator):
         return context.active_object is not None and context.active_object.type == 'MESH'
 
     def execute(self, context):
-        self.select_overlapping(context, self.overlapping, self.distance, self.intersections, self.inset, self.coplanar, self.tolerance, self.angle)
+        self.select_overlapping(
+            context,
+            self.overlapping,
+            self.distance,
+            self.intersections,
+            self.inset,
+            self.direction_type == 'COPLANAR' or self.direction_type == 'ALL',
+            self.direction_type == 'CONTRARY' or self.direction_type == 'ALL',
+            self.tolerance,
+            self.angle
+        )
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -408,24 +430,25 @@ class SelectOverlapping(bpy.types.Operator):
         distance_row.label(text="Inset")
         distance_row.prop(self, "inset", text="")
 
-        # Coplanar
+        # Direction
         box = layout.box()
         box.enabled = face_mode
         row = box.row()
-        row.label(text="Coplanar")
-        row.prop(self, "coplanar", text="")
+        row.label(text="Face Direction")
+        row.prop(self, "direction_type", text="")
         
+        enable = self.direction_type != 'ALL'
         distance_row = box.row()
-        distance_row.enabled = self.coplanar
+        distance_row.enabled = enable
         distance_row.label(text="Tolerance")
         distance_row.prop(self, "tolerance", text="")
 
         distance_row = box.row()
-        distance_row.enabled = self.coplanar
+        distance_row.enabled = enable
         distance_row.label(text="Angle")
         distance_row.prop(self, "angle", text="")
 
-    def select_overlapping(self, context, overlapping, distance, intersections, inset, coplanar, tolerance, angle):
+    def select_overlapping(self, context, overlapping, distance, intersections, inset, coplanar, contrary, tolerance, angle):
         # Selection mode - Vertex, Edge, Face
         if self.select_type == 'VERT':
             bpy.context.tool_settings.mesh_select_mode = [True, False, False]
@@ -462,9 +485,9 @@ class SelectOverlapping(bpy.types.Operator):
                 if context.active_object.data.polygons:
                     select_duplicate_faces(context, distance)
 
-        if (intersections or coplanar) and face_mode:
+        if (intersections or coplanar or contrary) and face_mode:
             if context.active_object.data.polygons:
-                select_intersect_faces(context, intersections, coplanar, inset, tolerance, angle)
+                select_intersect_faces(context, intersections, coplanar, contrary, inset, tolerance, angle)
 
 def menu_func(self, context):
     self.layout.operator(SelectOverlapping.bl_idname, text="Select Overlapping")
