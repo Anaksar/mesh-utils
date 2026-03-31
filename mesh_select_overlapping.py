@@ -307,7 +307,7 @@ class SelectOverlapping(bpy.types.Operator):
     distance: bpy.props.FloatProperty(
         name = "Distance",
         subtype ='DISTANCE',
-        default = 0.0001,
+        default = 0.005,
         min = 0.0,
         max = 100.0,
         description = "Minimum overlapping distance between vertices to select",
@@ -323,7 +323,7 @@ class SelectOverlapping(bpy.types.Operator):
     inset: bpy.props.FloatProperty(
         name = "Inset",
         subtype='DISTANCE',
-        default = 0.0001,
+        default = 0.005,
         min = 0.0,
         max = 1.0,
         description = "Inset factor between adjacent faces",
@@ -344,7 +344,7 @@ class SelectOverlapping(bpy.types.Operator):
     tolerance: bpy.props.FloatProperty(
         name = "Tolerance",
         subtype='DISTANCE',
-        default = 0.000001,
+        default = 0.005,
         min = 0.0,
         max = 0.1,
         description = "Distance tolerance between coplanar faces",
@@ -354,7 +354,7 @@ class SelectOverlapping(bpy.types.Operator):
     angle: bpy.props.FloatProperty(
         name = "Angle",
         subtype='ANGLE',
-        default = radians(0.1),
+        default = radians(0.75),
         min = radians(0.0),
         max = radians(90.0),
         description = "Angle tolerance between coplanar faces",
